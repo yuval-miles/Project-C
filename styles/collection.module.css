@@ -1,0 +1,4 @@
+.collection {
+  min-width: calc(100vw - 350px);
+  min-height: 100vh;
+}
