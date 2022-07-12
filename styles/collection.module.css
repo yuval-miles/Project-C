@@ -1,4 +1,7 @@
 .collection {
-  min-width: calc(100vw - 350px);
+  flex-shrink: 0;
+  padding: 20px;
+  min-width: calc(100vw - 317px);
   min-height: 100vh;
+  background-color: black;
 }

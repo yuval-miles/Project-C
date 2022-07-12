@@ -8,6 +8,7 @@ export interface options {
   itemPadding: number;
   checkboxArr: string[];
   padding: number;
+  showOptions: boolean;
 }
 
 const initState: options = {
@@ -17,6 +18,7 @@ const initState: options = {
   itemPadding: 0,
   checkboxArr: [],
   padding: 5,
+  showOptions: false,
 };
 
 export const optionsSlice = createSlice({

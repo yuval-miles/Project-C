@@ -1,210 +1,78 @@
-import React, { FC } from "react";
+import React, { FC, useCallback, useMemo } from "react";
+import { useSelector, shallowEqual, useDispatch } from "react-redux";
+import { updateOptions } from "../store/slices/optionsSlice";
+import { updateSearchBar, fetchResults } from "../store/slices/searchBarSlice";
+import { RootState, AppDispatch } from "../store/store";
+import SideBarOptions from "./SideBarOptions";
 import {
   Typography,
-  TextField,
-  Stack,
-  Slider,
-  FormControl,
   FormControlLabel,
-  Radio,
-  FormLabel,
-  RadioGroup,
-  FormGroup,
-  Checkbox,
+  Switch,
+  Collapse,
+  Divider,
+  Stack,
+  TextField,
 } from "@mui/material";
 import styles from "../styles/sidebar.module.css";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState, AppDispatch } from "../store/store";
-import { updateOptions, options } from "../store/slices/optionsSlice";
+import { Box } from "@mui/system";
+import { debounce } from "../hooks/useDebounce";
 
 const SideBar: FC = () => {
-  const options = useSelector((state: RootState) => state.options);
   const dispatch: AppDispatch = useDispatch();
-
-  const handleTextFieldChange =
-    (field: string) => (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.code.includes("Digit"))
-        dispatch(
-          updateOptions({
-            [field]: Math.min(
-              Math.max(
-                parseInt(options[field as keyof options].toString() + e.key),
-                1
-              ),
-              20
-            ),
-          })
-        );
-      if (e.code === "Backspace") {
-        let str: string = options[field as keyof options]
-          .toString()
-          .substring(0, options[field as keyof options].toString().length - 1);
-        dispatch(updateOptions({ [field]: !str ? 0 : parseInt(str) }));
-      }
-    };
-  const handleChangeEvent = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    value: string
+  const { gridOptions, searchBar } = useSelector(
+    (state: RootState) => ({
+      gridOptions: state.options,
+      searchBar: state.searchBar,
+    }),
+    shallowEqual
+  );
+  const getResults = useCallback(
+    debounce((query: string) => {
+      dispatch(fetchResults(query));
+    }, 1000),
+    []
+  );
+  const handleChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    checked: boolean | null
   ) => {
-    if (value) dispatch(updateOptions({ collectionType: value }));
+    if (checked !== null) dispatch(updateOptions({ showOptions: checked }));
     else {
-      if (options.checkboxArr.indexOf(e.target.name) === -1)
-        dispatch(
-          updateOptions({
-            checkboxArr: [...options.checkboxArr, e.target.name],
-          })
-        );
-      else {
-        const newArr = options.checkboxArr.filter((el) => el !== e.target.name);
-        dispatch(updateOptions({ checkboxArr: newArr }));
-      }
+      dispatch(
+        updateSearchBar({
+          input: event.target.value,
+          results: event.target.value ? searchBar.results : {},
+        })
+      );
+      if (event.target.value) getResults(event.target.value);
     }
   };
-  const handleSliderChange =
-    (field: string) => (event: Event, newValue: number | number[]) => {
-      if (newValue !== options[field as keyof options])
-        dispatch(updateOptions({ [field]: newValue }));
-    };
   return (
-    <section className={styles.sidebar}>
-      <Stack direction={"column"} spacing={3}>
+    <div className={styles.sidebar}>
+      <Stack gap={2}>
         <Typography variant="h5">Collection settings</Typography>
-        <FormControl>
-          <FormLabel id="demo-radio-buttons-group-label">
-            Collection Type
-          </FormLabel>
-          <RadioGroup
-            aria-labelledby="demo-radio-buttons-group-label"
-            defaultValue="female"
-            name="radio-buttons-group"
-            onChange={handleChangeEvent}
-            row
-          >
-            <FormControlLabel
-              value="collage"
-              control={<Radio checked={options.collectionType === "collage"} />}
-              label="Collage"
-              sx={{
-                "& .MuiSvgIcon-root": {
-                  fontSize: 20,
-                },
-              }}
-            />
-            <FormControlLabel
-              value="top42"
-              control={<Radio checked={options.collectionType === "top42"} />}
-              label="Top 42"
-              sx={{
-                "& .MuiSvgIcon-root": {
-                  fontSize: 20,
-                },
-              }}
-            />
-            <FormControlLabel
-              value="top40"
-              control={<Radio checked={options.collectionType === "top40"} />}
-              label="Top 40"
-              sx={{
-                "& .MuiSvgIcon-root": {
-                  fontSize: 20,
-                },
-              }}
-            />
-            <FormControlLabel
-              value="top100"
-              control={<Radio checked={options.collectionType === "top100"} />}
-              label="Top 100"
-              sx={{
-                "& .MuiSvgIcon-root": {
-                  fontSize: 20,
-                },
-              }}
-            />
-          </RadioGroup>
-        </FormControl>
-        {options.collectionType === "collage" && (
-          <Stack direction={"column"} spacing={3}>
-            <Stack direction={"row"} alignItems={"center"} gap={2}>
-              <TextField
-                label="Rows"
-                value={options.gridRows}
-                style={{ width: "70px" }}
-                onKeyDown={handleTextFieldChange("gridRows")}
-              />
-              <Slider
-                defaultValue={5}
-                max={20}
-                min={0}
-                value={options.gridRows}
-                aria-label="gridRows"
-                valueLabelDisplay="auto"
-                onChange={handleSliderChange("gridRows")}
-              />
-            </Stack>
-            <Stack direction={"row"} alignItems={"center"} gap={2}>
-              <TextField
-                label="Columns"
-                value={options.gridColumns}
-                style={{ width: "110px" }}
-                onKeyDown={handleTextFieldChange("gridColumns")}
-              />
-              <Slider
-                defaultValue={7}
-                max={20}
-                min={0}
-                value={options.gridColumns}
-                aria-label="gridRows"
-                valueLabelDisplay="auto"
-                onChange={handleSliderChange("gridColumns")}
-              />
-            </Stack>
-          </Stack>
-        )}
-        <FormGroup>
-          <FormControlLabel
-            control={
-              <Checkbox
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  handleChangeEvent(e, "")
-                }
-                checked={options.checkboxArr.includes("album titles")}
-              />
-            }
-            label="album titles"
-            name="album titles"
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  handleChangeEvent(e, "")
-                }
-                checked={options.checkboxArr.includes("numbered")}
-              />
-            }
-            label="numbered"
-            name="numbered"
-          />
-        </FormGroup>
-        <Stack direction={"row"} alignItems={"center"} gap={2}>
-          <TextField
-            label="Padding"
-            value={options.padding}
-            style={{ width: "110px" }}
-            onKeyDown={handleTextFieldChange("padding")}
-          />
-          <Slider
-            defaultValue={5}
-            max={20}
-            min={0}
-            value={options.padding}
-            aria-label="gridRows"
-            valueLabelDisplay="auto"
-            onChange={handleSliderChange("padding")}
-          />
-        </Stack>
+        <FormControlLabel
+          checked={gridOptions.showOptions}
+          control={<Switch onChange={handleChange} />}
+          label="Show Options"
+        />
+        <Collapse in={gridOptions.showOptions}>
+          {
+            <Box>
+              <SideBarOptions />
+            </Box>
+          }
+        </Collapse>
+        <Divider />
+        <TextField
+          label="Search for an album..."
+          value={searchBar.input}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            handleChange(e, null)
+          }
+        />
       </Stack>
-    </section>
+    </div>
   );
 };
 

@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
 import options from "./slices/optionsSlice";
+import searchBar from "./slices/searchBarSlice";
 
 export const store = configureStore({
   reducer: {
     options,
+    searchBar,
   },
 });
 
