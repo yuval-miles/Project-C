@@ -9,12 +9,28 @@ export enum searchType {
   Movies = "movies",
 }
 
+export interface imageObj {
+  "#text": string;
+  size: string;
+}
+export interface album {
+  artist: string;
+  image: Array<imageObj>;
+  mbid: string;
+  name: string;
+  streamable: string;
+  url: string;
+}
+export interface Results {
+  album: Array<album>;
+}
+
 export interface SearchBarInput {
   input: string;
   searchType: searchType;
   status: string;
   error: undefined | string;
-  results: Array<object>;
+  results: Results | null;
 }
 
 const initState: SearchBarInput = {
@@ -22,16 +38,20 @@ const initState: SearchBarInput = {
   searchType: searchType.Albums,
   status: "idle",
   error: undefined,
-  results: [],
+  results: null,
 };
 
 export const fetchResults = createAsyncThunk(
   "searchBar/fetchResults",
   async (input: string) => {
     try {
-      const { data } = await axios.get(`${baseURL}getAlbums?search=${input}`);
-      if (data.message === "failed") throw new Error(data.response);
-      return data.response;
+      if (input) {
+        const { data } = await axios.get(`${baseURL}getAlbums?search=${input}`);
+        if (data.message === "failed") throw new Error(data.response);
+        return data.response;
+      } else {
+        return null;
+      }
     } catch (error) {
       return error;
     }

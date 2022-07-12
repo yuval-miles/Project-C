@@ -16,6 +16,7 @@ import {
 import styles from "../styles/sidebar.module.css";
 import { Box } from "@mui/system";
 import { debounce } from "../hooks/useDebounce";
+import SearchResults from "./SearchResults";
 
 const SideBar: FC = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -26,10 +27,11 @@ const SideBar: FC = () => {
     }),
     shallowEqual
   );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const getResults = useCallback(
     debounce((query: string) => {
       dispatch(fetchResults(query));
-    }, 1000),
+    }, 300),
     []
   );
   const handleChange = (
@@ -38,13 +40,8 @@ const SideBar: FC = () => {
   ) => {
     if (checked !== null) dispatch(updateOptions({ showOptions: checked }));
     else {
-      dispatch(
-        updateSearchBar({
-          input: event.target.value,
-          results: event.target.value ? searchBar.results : {},
-        })
-      );
-      if (event.target.value) getResults(event.target.value);
+      dispatch(updateSearchBar({ input: event.target.value }));
+      getResults(event.target.value);
     }
   };
   return (
@@ -71,6 +68,7 @@ const SideBar: FC = () => {
             handleChange(e, null)
           }
         />
+        <SearchResults />
       </Stack>
     </div>
   );
