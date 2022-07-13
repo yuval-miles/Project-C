@@ -1,8 +1,9 @@
 import React, { FC } from "react";
 import { shallowEqual, useSelector } from "react-redux";
 import { Results } from "../store/slices/searchBarSlice";
-import Image from "next/image";
 import { RootState } from "../store/store";
+import { Stack } from "@mui/material";
+import ResultItem from "./ResultItem";
 
 const SearchResults: FC = () => {
   const results: Results | null = useSelector(
@@ -10,21 +11,25 @@ const SearchResults: FC = () => {
     shallowEqual
   );
   return (
-    <div>
+    <Stack
+      flexWrap={"wrap"}
+      justifyContent={"center"}
+      flexDirection={"row"}
+      overflow={"auto"}
+    >
       {results &&
         results.album.map((el) => {
-          if (!el.image[1]["#text"]) return;
+          if (!el.image[3]["#text"]) return;
           return (
-            <Image
+            <ResultItem
               key={el.url}
-              src={el.image[1]["#text"]}
-              alt="test"
-              width={50}
-              height={50}
+              albumName={el.name}
+              url={el.image[3]["#text"]}
+              artist={el.artist}
             />
           );
         })}
-    </div>
+    </Stack>
   );
 };
 

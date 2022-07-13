@@ -46,14 +46,14 @@ const SideBar: FC = () => {
   };
   return (
     <div className={styles.sidebar}>
-      <Stack gap={2}>
+      <Stack gap={2} height={"100vh"}>
         <Typography variant="h5">Collection settings</Typography>
         <FormControlLabel
           checked={gridOptions.showOptions}
           control={<Switch onChange={handleChange} />}
           label="Show Options"
         />
-        <Collapse in={gridOptions.showOptions}>
+        <Collapse in={gridOptions.showOptions} className={styles.options}>
           {
             <Box>
               <SideBarOptions />

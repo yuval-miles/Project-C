@@ -4,3 +4,7 @@
   width: 300px;
   min-height: 100vh;
 }
+
+.options {
+  flex-shrink: 0;
+}
