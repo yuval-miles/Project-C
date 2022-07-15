@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import styles from "../styles/sidebar.module.css";
 import { Box } from "@mui/system";
-import { debounce } from "../hooks/useDebounce";
+import { debounce } from "../functions/debounce";
 import SearchResults from "./SearchResults";
 
 const SideBar: FC = () => {

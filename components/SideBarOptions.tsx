@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, useState } from "react";
 
 import {
   TextField,
@@ -12,41 +12,69 @@ import {
   FormGroup,
   Checkbox,
 } from "@mui/material";
-import { useDispatch, useSelector } from "react-redux";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "../store/store";
 import { updateOptions, options } from "../store/slices/optionsSlice";
+import { useSetGrid, addedItemsObj } from "../hooks/useSetGrid";
 
 const SideBarOptions: FC = () => {
-  const options: options = useSelector((state: RootState) => state.options);
+  const options: options = useSelector(
+    (state: RootState) => state.options,
+    shallowEqual
+  );
   const dispatch: AppDispatch = useDispatch();
+  const setGrid = useSetGrid();
 
   const handleTextFieldChange =
     (field: string) => (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.code.includes("Digit"))
+      let test: number = 0;
+      if (e.code.includes("Digit")) {
+        test = Math.min(
+          Math.max(
+            parseInt(options[field as keyof options].toString() + e.key),
+            1
+          ),
+          20
+        );
         dispatch(
           updateOptions({
-            [field]: Math.min(
-              Math.max(
-                parseInt(options[field as keyof options].toString() + e.key),
-                1
-              ),
-              20
-            ),
+            [field]: test,
           })
         );
+      }
       if (e.code === "Backspace") {
-        let str: string = options[field as keyof options]
+        let str = options[field as keyof options]
           .toString()
           .substring(0, options[field as keyof options].toString().length - 1);
         dispatch(updateOptions({ [field]: !str ? 0 : parseInt(str) }));
+        if (str === "") test = 0;
+        else test = parseInt(str);
+      }
+      switch (field) {
+        case "gridRows":
+          if (test)
+            setGrid(
+              options.collectionType,
+              test as number,
+              options.gridColumns
+            );
+          break;
+        case "gridColumns":
+          if (test)
+            setGrid(options.collectionType, options.gridRows, test as number);
+          break;
+        default:
+          break;
       }
     };
   const handleChangeEvent = (
     e: React.ChangeEvent<HTMLInputElement>,
     value: string
   ) => {
-    if (value) dispatch(updateOptions({ collectionType: value }));
-    else {
+    if (value) {
+      setGrid(value, options.gridRows, options.gridColumns);
+      dispatch(updateOptions({ collectionType: value }));
+    } else {
       if (options.checkboxArr.indexOf(e.target.name) === -1)
         dispatch(
           updateOptions({
@@ -61,8 +89,29 @@ const SideBarOptions: FC = () => {
   };
   const handleSliderChange =
     (field: string) => (event: Event, newValue: number | number[]) => {
-      if (newValue !== options[field as keyof options])
+      if (newValue !== options[field as keyof options]) {
         dispatch(updateOptions({ [field]: newValue }));
+        switch (field) {
+          case "gridRows":
+            if (newValue)
+              setGrid(
+                options.collectionType,
+                newValue as number,
+                options.gridColumns
+              );
+            break;
+          case "gridColumns":
+            if (newValue)
+              setGrid(
+                options.collectionType,
+                options.gridRows,
+                newValue as number
+              );
+            break;
+          default:
+            break;
+        }
+      }
     };
   return (
     <section>
@@ -151,7 +200,7 @@ const SideBarOptions: FC = () => {
                 max={20}
                 min={0}
                 value={options.gridColumns}
-                aria-label="gridRows"
+                aria-label="gridColumns"
                 valueLabelDisplay="auto"
                 onChange={handleSliderChange("gridColumns")}
               />

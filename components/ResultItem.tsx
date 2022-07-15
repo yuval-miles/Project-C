@@ -6,6 +6,8 @@ export interface ResultItemType {
   url: string;
   artist: string;
   albumName: string;
+  positionId?: [number, number];
+  position?: number;
 }
 
 const ResultItem: FC<ResultItemType> = ({ url, artist, albumName }) => {
