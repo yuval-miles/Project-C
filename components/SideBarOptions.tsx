@@ -24,7 +24,6 @@ const SideBarOptions: FC = () => {
   );
   const dispatch: AppDispatch = useDispatch();
   const setGrid = useSetGrid();
-
   const handleTextFieldChange =
     (field: string) => (e: React.KeyboardEvent<HTMLInputElement>) => {
       let test: number = 0;
@@ -255,4 +254,4 @@ const SideBarOptions: FC = () => {
   );
 };
 
-export default SideBarOptions;
+export default React.memo(SideBarOptions);

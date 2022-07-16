@@ -20,10 +20,10 @@ import SearchResults from "./SearchResults";
 
 const SideBar: FC = () => {
   const dispatch: AppDispatch = useDispatch();
-  const { gridOptions, searchBar } = useSelector(
+  const { gridOptions, searchBarInput } = useSelector(
     (state: RootState) => ({
       gridOptions: state.options,
-      searchBar: state.searchBar,
+      searchBarInput: state.searchBar.input,
     }),
     shallowEqual
   );
@@ -63,7 +63,7 @@ const SideBar: FC = () => {
         <Divider />
         <TextField
           label="Search for an album..."
-          value={searchBar.input}
+          value={searchBarInput}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             handleChange(e, null)
           }
