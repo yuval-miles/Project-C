@@ -1,7 +1,6 @@
-import React, { FC, useCallback, useMemo } from "react";
+import React, { FC, useCallback, useMemo, useState } from "react";
 import { useSelector, shallowEqual, useDispatch } from "react-redux";
 import { updateOptions } from "../store/slices/optionsSlice";
-import { updateSearchBar, fetchResults } from "../store/slices/searchBarSlice";
 import { RootState, AppDispatch } from "../store/store";
 import SideBarOptions from "./SideBarOptions";
 import {
@@ -17,20 +16,26 @@ import styles from "../styles/sidebar.module.css";
 import { Box } from "@mui/system";
 import { debounce } from "../functions/debounce";
 import SearchResults from "./SearchResults";
+import { trpc } from "../utils/trpc";
 
 const SideBar: FC = () => {
   const dispatch: AppDispatch = useDispatch();
-  const { gridOptions, searchBarInput } = useSelector(
+  const { gridOptions } = useSelector(
     (state: RootState) => ({
       gridOptions: state.options,
-      searchBarInput: state.searchBar.input,
     }),
     shallowEqual
   );
+  const [query, setQuery] = useState<string>("");
+  const { data, refetch } = trpc.useQuery(["Albums.get", query], {
+    refetchOnWindowFocus: false,
+    enabled: false,
+    keepPreviousData: true,
+  });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const getResults = useCallback(
-    debounce((query: string) => {
-      dispatch(fetchResults(query));
+    debounce(() => {
+      refetch();
     }, 300),
     []
   );
@@ -40,8 +45,8 @@ const SideBar: FC = () => {
   ) => {
     if (checked !== null) dispatch(updateOptions({ showOptions: checked }));
     else {
-      dispatch(updateSearchBar({ input: event.target.value }));
-      getResults(event.target.value);
+      setQuery(event.target.value);
+      getResults();
     }
   };
   return (
@@ -63,12 +68,12 @@ const SideBar: FC = () => {
         <Divider />
         <TextField
           label="Search for an album..."
-          value={searchBarInput}
+          value={query}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             handleChange(e, null)
           }
         />
-        <SearchResults />
+        <SearchResults results={data?.response.album} />
       </Stack>
     </div>
   );

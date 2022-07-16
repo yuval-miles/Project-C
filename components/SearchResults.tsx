@@ -1,15 +1,15 @@
 import React, { FC } from "react";
-import { shallowEqual, useSelector } from "react-redux";
-import { Results } from "../store/slices/searchBarSlice";
-import { RootState } from "../store/store";
 import { Stack } from "@mui/material";
 import ResultItem from "./ResultItem";
 
-const SearchResults: FC = () => {
-  const results: Results | null = useSelector(
-    (state: RootState) => state.searchBar.results,
-    shallowEqual
-  );
+const SearchResults: FC<{
+  results: Array<{
+    url: string;
+    name: string;
+    artist: string;
+    image: Array<{ size: string; "#text": string }>;
+  }>;
+}> = ({ results }) => {
   return (
     <Stack
       flexWrap={"wrap"}
@@ -18,7 +18,7 @@ const SearchResults: FC = () => {
       overflow={"auto"}
     >
       {results &&
-        results.album.map((el) => {
+        results.map((el) => {
           if (!el.image[3]["#text"]) return;
           return (
             <ResultItem
