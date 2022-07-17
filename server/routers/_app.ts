@@ -2,7 +2,8 @@
  * This file contains the root router of your tRPC-backend
  */
 import { createRouter } from "../createRouter";
-import { lastfmQuery } from "./lastfmQuery";
+import { lastfmRouter } from "./lastfmRouter";
+import { userRouter } from "./userRouter";
 import superjson from "superjson";
 
 /**
@@ -30,6 +31,7 @@ export const appRouter = createRouter()
       return "yay!";
     },
   })
-  .merge("Albums.", lastfmQuery);
+  .merge("Albums.", lastfmRouter)
+  .merge("Users.", userRouter);
 
 export type AppRouter = typeof appRouter;

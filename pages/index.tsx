@@ -7,6 +7,8 @@ import styles from "../styles/createCol.module.css";
 import { createNewGrid } from "../functions/createNewGrid";
 import { createGrid } from "../store/slices/collectionSlice";
 import { useDispatch } from "react-redux";
+import { trpc } from "../utils/trpc";
+import { useEffect } from "react";
 
 const Home: NextPage = () => {
   const dispatch = useDispatch();

@@ -3,12 +3,15 @@ import { Stack } from "@mui/material";
 import ResultItem from "./ResultItem";
 
 const SearchResults: FC<{
-  results: Array<{
-    url: string;
-    name: string;
-    artist: string;
-    image: Array<{ size: string; "#text": string }>;
-  }>;
+  results:
+    | Array<{
+        url: string;
+        name: string;
+        artist: string;
+        mbid: string;
+        image: Array<{ size: string; "#text": string }>;
+      }>
+    | undefined;
 }> = ({ results }) => {
   return (
     <Stack

@@ -20,6 +20,7 @@
     "@trpc/server": "^9.26.0",
     "@types/uuid": "^8.3.4",
     "axios": "^0.27.2",
+    "bcrypt": "^5.0.1",
     "next": "12.2.2",
     "react": "18.2.0",
     "react-dnd": "^16.0.1",
@@ -32,6 +33,7 @@
     "zod": "^3.17.3"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.0",
     "@types/node": "18.0.3",
     "@types/react": "18.0.15",
     "@types/react-dom": "18.0.6",

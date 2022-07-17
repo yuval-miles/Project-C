@@ -27,7 +27,7 @@ const SideBar: FC = () => {
     shallowEqual
   );
   const [query, setQuery] = useState<string>("");
-  const { data, refetch } = trpc.useQuery(["Albums.get", query], {
+  const { data, isLoading, refetch } = trpc.useQuery(["Albums.get", query], {
     refetchOnWindowFocus: false,
     enabled: false,
     keepPreviousData: true,
@@ -73,7 +73,13 @@ const SideBar: FC = () => {
             handleChange(e, null)
           }
         />
-        <SearchResults results={data?.response.album} />
+        {typeof data?.response !== "string" ? (
+          <SearchResults results={data?.response.album} />
+        ) : data?.response === "Empty query" ? (
+          <></>
+        ) : (
+          <Typography>{data.response}</Typography>
+        )}
       </Stack>
     </div>
   );
