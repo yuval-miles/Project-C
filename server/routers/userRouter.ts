@@ -22,6 +22,8 @@ export const userRouter = createRouter()
           !emailValidator.test(input.email)
         )
           return { message: "failed", response: "Validation failed" };
+        const hashPass = bcrypt.hashSync(input.password, 10);
+        input.password = hashPass;
         const newUser = await prisma.users.create({ data: input });
         return { message: "success", response: "User Created" };
       } catch (err) {

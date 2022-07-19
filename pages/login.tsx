@@ -12,7 +12,11 @@ const LoginPage = () => {
   return (
     <div className={styles.loginPageContainer}>
       <Stack gap={3}>
-        {showLogin ? <LoginForm /> : <CreateUserForm />}
+        {showLogin ? (
+          <LoginForm />
+        ) : (
+          <CreateUserForm toggleLogin={setShowLogin} />
+        )}
         <Button variant="text" onClick={handleClick}>
           {showLogin ? "Dont have an account?" : "Already have an account?"}
         </Button>

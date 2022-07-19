@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   Box,
   Button,
@@ -29,7 +29,11 @@ const checkUsername = (value: string): string => {
   return "";
 };
 
-const CreateUserForm = () => {
+const CreateUserForm = ({
+  toggleLogin,
+}: {
+  toggleLogin: React.Dispatch<React.SetStateAction<Boolean>>;
+}) => {
   const [input, setInput] = useState<{
     name: string;
     password: string;
@@ -51,11 +55,18 @@ const CreateUserForm = () => {
     showPassword: false,
     passwordsMatch: true,
   });
-  const createUser = trpc.useMutation(["Users.createUser"]);
+  const { mutate: createUser, isSuccess } = trpc.useMutation([
+    "Users.createUser",
+  ]);
   const { data: isUserValid, refetch } = trpc.useQuery(
     ["Users.userExists", { email: input.email, userName: input.name }],
     { enabled: false, refetchOnWindowFocus: false }
   );
+  useEffect(() => {
+    if (isSuccess) {
+      toggleLogin((state) => !state);
+    }
+  });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const getIsUserValid = useCallback(
     debounce(() => {
@@ -63,7 +74,7 @@ const CreateUserForm = () => {
     }, 300),
     []
   );
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (
       !input.name ||
@@ -78,7 +89,7 @@ const CreateUserForm = () => {
         isUserValid?.response.usernameExists)
     )
       return;
-    createUser.mutate({
+    createUser({
       name: input.name,
       email: input.email,
       password: input.password,

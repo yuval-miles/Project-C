@@ -17,19 +17,6 @@ export const prisma: PrismaClient =
       env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
   });
 
-prisma.$use(async (params, next) => {
-  if (params.model === "users") {
-    if (params.action === "create" || params.action === "update") {
-      if (params.args.data.password) {
-        // const salt = bcrypt.genSaltSync(10);
-        const hashPass = bcrypt.hashSync(params.args.data.password, 10);
-        params.args.data.password = hashPass;
-      }
-    }
-  }
-  return next(params);
-});
-
 if (env.NODE_ENV !== "production") {
   prismaGlobal.prisma = prisma;
 }
