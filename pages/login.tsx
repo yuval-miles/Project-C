@@ -12,12 +12,12 @@ const LoginPage = () => {
   return (
     <div className={styles.loginPageContainer}>
       <Stack gap={3}>
-        {showLogin ? (
-          <LoginForm />
-        ) : (
-          <CreateUserForm toggleLogin={setShowLogin} />
-        )}
-        <Button variant="text" onClick={handleClick}>
+        {showLogin ? <LoginForm /> : <CreateUserForm />}
+        <Button
+          variant="text"
+          onClick={handleClick}
+          sx={{ textTransform: "unset" }}
+        >
           {showLogin ? "Dont have an account?" : "Already have an account?"}
         </Button>
       </Stack>

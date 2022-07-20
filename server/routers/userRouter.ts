@@ -24,7 +24,7 @@ export const userRouter = createRouter()
           return { message: "failed", response: "Validation failed" };
         const hashPass = bcrypt.hashSync(input.password, 10);
         input.password = hashPass;
-        const newUser = await prisma.users.create({ data: input });
+        const newUser = await prisma.user.create({ data: input });
         return { message: "success", response: "User Created" };
       } catch (err) {
         return { message: "failed", response: `${err}` };
@@ -37,15 +37,17 @@ export const userRouter = createRouter()
       password: z.string(),
     }),
     async resolve({ input: { password, email } }) {
-      const user = await prisma.users.findUnique({
+      const user = await prisma.user.findUnique({
         where: {
           email,
         },
       });
       if (user) {
-        if (bcrypt.compareSync(password, user.password))
-          return { message: "success", response: user };
-        else return { message: "failed", response: "Invalid password" };
+        if (user.password) {
+          if (bcrypt.compareSync(password, user.password))
+            return { message: "success", response: user };
+          else return { message: "failed", response: "Invalid password" };
+        }
       } else {
         return {
           message: "failed",
@@ -58,7 +60,7 @@ export const userRouter = createRouter()
     input: z.object({ email: z.string(), userName: z.string() }),
     async resolve({ input: { email, userName } }) {
       try {
-        const exists = await prisma.users.findFirst({
+        const exists = await prisma.user.findFirst({
           where: {
             OR: [
               {

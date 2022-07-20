@@ -1,10 +1,12 @@
-import React, { FC, useState } from "react";
+import React, { useState } from "react";
 import { Box, Button, Stack, TextField, InputAdornment } from "@mui/material";
-import { useSession, signIn } from "next-auth/react";
+import { useSession, signIn, signOut } from "next-auth/react";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import GoogleIcon from "@mui/icons-material/Google";
+import GitHubIcon from "@mui/icons-material/GitHub";
 
-const LoginForm: FC<any> = () => {
+const LoginForm = () => {
   const [input, setInput] = useState<{
     password: string;
     email: string;
@@ -19,13 +21,11 @@ const LoginForm: FC<any> = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const res = await signIn("credentials", {
-      redirect: false,
+    await signIn("credentials", {
       email: input.email,
       password: input.password,
-      callbackUrl: `${window.location.origin}`,
+      callbackUrl: `/userProfile`,
     });
-    console.log(res);
   };
   const handleChange =
     (field: string) =>
@@ -34,7 +34,7 @@ const LoginForm: FC<any> = () => {
     };
   return (
     <Box component="form" onSubmit={handleSubmit}>
-      <Stack gap={3}>
+      <Stack gap={2}>
         <TextField
           required
           label="Email"
@@ -79,9 +79,33 @@ const LoginForm: FC<any> = () => {
         <Button type="submit" variant="contained">
           Login
         </Button>
+        <Button
+          onClick={() => signIn("google", { callbackUrl: "/userProfile" })}
+          variant="outlined"
+          startIcon={<GoogleIcon />}
+          sx={{ textTransform: "unset" }}
+        >
+          Login With Google
+        </Button>
+        <Button
+          onClick={() => signIn("github", { callbackUrl: "/userProfile" })}
+          variant="outlined"
+          startIcon={<GitHubIcon />}
+          sx={{ textTransform: "unset" }}
+        >
+          Login with github
+        </Button>
+        <Button onClick={() => signOut()}>logout</Button>
       </Stack>
     </Box>
   );
 };
+
+// export async function getServerSideProps(context: any) {
+//   const providers = await getProviders();
+//   return {
+//     props: { providers },
+//   };
+// }
 
 export default LoginForm;

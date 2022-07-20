@@ -1,12 +1,12 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { PrismaClient } from "@prisma/client";
+import GitHubProvider from "next-auth/providers/github";
+import GoogleProvider from "next-auth/providers/google";
 import { prisma } from "../../../server/prisma";
 import * as bcrypt from "bcrypt";
 
 export default NextAuth({
-  adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
       // The name to display on the sign in form (e.g. "Sign in with...")
@@ -20,16 +20,16 @@ export default NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials, req) {
-        const user = await prisma.users.findUnique({
+        const user = await prisma.user.findUnique({
           where: {
             email: credentials.email,
           },
         });
         if (user) {
           // Any object returned will be saved in `user` property of the JWT
-          if (bcrypt.compareSync(credentials.password, user.password))
+          if (bcrypt.compareSync(credentials.password, user.password)) {
             return user;
-          else return null;
+          } else return null;
         } else {
           // If you return null then an error will be displayed advising the user to check their details.
           return null;
@@ -37,9 +37,19 @@ export default NextAuth({
         }
       },
     }),
+    GitHubProvider({
+      clientId: process.env.GITHUB_ID,
+      clientSecret: process.env.GITHUB_SECRET,
+    }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    }),
   ],
-  jwt: {
-    maxAge: 60 * 60 * 24 * 30,
+  session: {
+    strategy: "jwt",
+    maxAge: 3000,
   },
   secret: process.env.JWT_SECRET,
+  adapter: PrismaAdapter(prisma),
 });
