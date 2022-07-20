@@ -19,6 +19,14 @@ datasource db {
 //   updatedAt DateTime @updatedAt
 // }
 
+model Collection{
+  id         String @id @default(cuid())
+  userId     String
+  name       String 
+  addedItems Json   @default("{}")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
 
 model Account {
   id                 String  @id @default(cuid())
@@ -58,6 +66,7 @@ model User {
   updatedAt     DateTime  @updatedAt
   accounts      Account[]
   sessions      Session[]
+  collections   Collection[]
 }
 
 model VerificationToken {

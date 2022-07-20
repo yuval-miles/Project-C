@@ -50,6 +50,20 @@ export default NextAuth({
     strategy: "jwt",
     maxAge: 3000,
   },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user?.id) {
+        token.id = user.id;
+      }
+      return token;
+    },
+
+    async session({ session, token }) {
+      session.id = token.id;
+
+      return session;
+    },
+  },
   secret: process.env.JWT_SECRET,
   adapter: PrismaAdapter(prisma),
 });

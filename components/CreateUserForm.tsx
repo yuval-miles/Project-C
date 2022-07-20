@@ -55,7 +55,7 @@ const CreateUserForm = () => {
   );
   useEffect(() => {
     if (isSuccess) {
-      router.push("/userProfile");
+      router.push("/");
     }
   });
   // eslint-disable-next-line react-hooks/exhaustive-deps

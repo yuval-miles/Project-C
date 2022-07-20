@@ -97,4 +97,17 @@ export const userRouter = createRouter()
         return { message: "failed", response: `Something went wrong ${err}` };
       }
     },
+  })
+  .query("getCollections", {
+    input: z.string(),
+    async resolve({ input, ctx }) {
+      if (!ctx.session || !ctx.session.user || input !== ctx.session.user.name)
+        return { message: "FORBIDDEN", response: [] };
+      const collections = await prisma.collection.findMany({
+        where: {
+          userId: ctx.session.id as string,
+        },
+      });
+      return { message: "success", response: collections };
+    },
   });

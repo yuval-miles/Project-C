@@ -3,6 +3,7 @@
  */
 import { createRouter } from "../createRouter";
 import { lastfmRouter } from "./lastfmRouter";
+import { collectionRouter } from "./collectionRouter";
 import { userRouter } from "./userRouter";
 import superjson from "superjson";
 
@@ -32,6 +33,7 @@ export const appRouter = createRouter()
     },
   })
   .merge("Albums.", lastfmRouter)
-  .merge("Users.", userRouter);
+  .merge("Users.", userRouter)
+  .merge("Collections.", collectionRouter);
 
 export type AppRouter = typeof appRouter;

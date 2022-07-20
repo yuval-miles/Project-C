@@ -24,7 +24,7 @@ const LoginForm = () => {
     await signIn("credentials", {
       email: input.email,
       password: input.password,
-      callbackUrl: `/userProfile`,
+      callbackUrl: `/`,
     });
   };
   const handleChange =
