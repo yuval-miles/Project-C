@@ -7,9 +7,14 @@ import { AddedItemsType } from "../../functions/createNewGrid";
 export type CollectionSliceType = {
   data: CollectionType;
   addedItems: AddedItemsType;
+  collectionID: string;
 };
 
-const initialState: CollectionSliceType = { data: [[]], addedItems: {} };
+const initialState: CollectionSliceType = {
+  data: [[]],
+  addedItems: {},
+  collectionID: "",
+};
 
 export const collectionSlice = createSlice({
   name: "collection",
@@ -42,6 +47,9 @@ export const collectionSlice = createSlice({
         ...newData,
       };
     },
+    updateCollectionId: (state, { payload }: PayloadAction<string>) => {
+      state.collectionID = payload;
+    },
   },
 });
 
@@ -50,6 +58,7 @@ export const {
   createGrid,
   updateAddedItems,
   removeAddedItem,
+  updateCollectionId,
 } = collectionSlice.actions;
 
 export default collectionSlice.reducer;

@@ -11,22 +11,30 @@ import {
 import { CollectionItemType } from "../functions/createNewGrid";
 import Image from "next/image";
 import { addedItemsObj } from "../hooks/useSetGrid";
+import { trpc } from "../utils/trpc";
 
 const CollectionItem: FC<{
   id: [number, number];
   position: number;
 }> = ({ id: [rowIndex, columnIdex], position }) => {
+  const updateCollection = trpc.useMutation(["Collections.updateAddedItems"]);
   const dispatch = useDispatch();
   const {
     padding,
     collectionItem: { size, url, albumName, artist, id },
+    collectionID,
   } = useSelector<
     RootState,
-    { padding: number; collectionItem: CollectionItemType }
+    {
+      padding: number;
+      collectionItem: CollectionItemType;
+      collectionID: string;
+    }
   >(
     (state: RootState): any => ({
       padding: state.options.padding,
       collectionItem: state.collection.data[rowIndex][columnIdex],
+      collectionID: state.collection.collectionID,
     }),
     shallowEqual
   );
@@ -40,6 +48,7 @@ const CollectionItem: FC<{
           artist: item.artist,
           id,
         };
+        updateCollection.mutate({ collectionID, addedItems: addedItemsObj });
         dispatch(
           updateAddedItems({
             [position]: {
@@ -58,6 +67,10 @@ const CollectionItem: FC<{
               artist,
               id,
             };
+            updateCollection.mutate({
+              collectionID,
+              addedItems: addedItemsObj,
+            });
           }
           dispatch(
             updateAddedItems({
@@ -101,6 +114,7 @@ const CollectionItem: FC<{
       collect: (monitor) => {
         if (monitor.isDragging() && url) {
           delete addedItemsObj[position as number];
+          updateCollection.mutate({ collectionID, addedItems: addedItemsObj });
           dispatch(removeAddedItem(position));
           dispatch(
             updateCollectionItem({

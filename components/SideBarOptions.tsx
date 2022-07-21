@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react";
+import React, { FC, useEffect } from "react";
 
 import {
   TextField,
@@ -15,15 +15,42 @@ import {
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "../store/store";
 import { updateOptions, options } from "../store/slices/optionsSlice";
-import { useSetGrid, addedItemsObj } from "../hooks/useSetGrid";
+import { useSetGrid } from "../hooks/useSetGrid";
+import { trpc } from "../utils/trpc";
 
 const SideBarOptions: FC = () => {
-  const options: options = useSelector(
-    (state: RootState) => state.options,
-    shallowEqual
-  );
+  const { options, collectionID }: { options: options; collectionID: string } =
+    useSelector(
+      (state: RootState) => ({
+        options: state.options,
+        collectionID: state.collection.collectionID,
+      }),
+      shallowEqual
+    );
   const dispatch: AppDispatch = useDispatch();
   const setGrid = useSetGrid();
+  const updateCollectionSettings = trpc.useMutation([
+    "Collections.updateCollectionSettings",
+  ]);
+  useEffect(() => {
+    updateCollectionSettings.mutate({
+      collectionID,
+      collectionSettings: {
+        collectionType: options.collectionType,
+        gridRows: options.gridRows,
+        gridColumns: options.gridColumns,
+        checkboxArr: options.checkboxArr,
+        padding: options.padding,
+      },
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    options.checkboxArr,
+    options.collectionType,
+    options.gridColumns,
+    options.gridRows,
+    options.padding,
+  ]);
   const handleTextFieldChange =
     (field: string) => (e: React.KeyboardEvent<HTMLInputElement>) => {
       let test: number = 0;

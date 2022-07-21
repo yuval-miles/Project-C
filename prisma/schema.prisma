@@ -20,10 +20,11 @@ datasource db {
 // }
 
 model Collection{
-  id         String @id @default(cuid())
-  userId     String
-  name       String 
-  addedItems Json   @default("{}")
+  id                String @id @default(cuid())
+  userId            String
+  name              String 
+  collectionSetting Json   @default("{}")
+  addedItems        Json   @default("{}")
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

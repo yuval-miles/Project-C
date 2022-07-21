@@ -18,13 +18,16 @@ const UserProfile = () => {
     { enabled: false, refetchOnWindowFocus: false }
   );
   const createCollection = trpc.useMutation(["Collections.createCollection"]);
+  const handleCreateCollection = async () => {
+    const data = await createCollection.mutateAsync();
+    if (data.message === "success" && typeof data.response === "object")
+      router.push(`/collection/${data.response.id}`);
+  };
   useEffect(() => {
     if (status === "authenticated") {
       refetch();
     }
   }, [status, refetch]);
-  if (createCollection.isSuccess && session)
-    router.push(`/collection/${session.id}`);
   if (status === "loading")
     return (
       <Box
@@ -53,7 +56,7 @@ const UserProfile = () => {
       >
         <Typography variant="h1">My Collections</Typography>
         <Stack direction={"row"}>
-          <Button onClick={() => createCollection.mutate()}>
+          <Button onClick={handleCreateCollection}>
             Create new collection
           </Button>
           {data?.response.map((el) => (
