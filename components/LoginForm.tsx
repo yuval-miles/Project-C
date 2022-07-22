@@ -79,7 +79,7 @@ const LoginForm = () => {
           Login
         </Button>
         <Button
-          onClick={() => signIn("google", { callbackUrl: "/userProfile" })}
+          onClick={() => signIn("google", { callbackUrl: "/" })}
           variant="outlined"
           startIcon={<GoogleIcon />}
           sx={{ textTransform: "unset" }}
@@ -87,7 +87,7 @@ const LoginForm = () => {
           Login With Google
         </Button>
         <Button
-          onClick={() => signIn("github", { callbackUrl: "/userProfile" })}
+          onClick={() => signIn("github", { callbackUrl: "/" })}
           variant="outlined"
           startIcon={<GitHubIcon />}
           sx={{ textTransform: "unset" }}

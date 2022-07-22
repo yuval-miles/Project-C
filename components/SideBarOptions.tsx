@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from "react";
+import React, { FC, useEffect, useRef } from "react";
 
 import {
   TextField,
@@ -19,6 +19,7 @@ import { useSetGrid } from "../hooks/useSetGrid";
 import { trpc } from "../utils/trpc";
 
 const SideBarOptions: FC = () => {
+  const initialLoad = useRef(true);
   const { options, collectionID }: { options: options; collectionID: string } =
     useSelector(
       (state: RootState) => ({
@@ -33,16 +34,21 @@ const SideBarOptions: FC = () => {
     "Collections.updateCollectionSettings",
   ]);
   useEffect(() => {
-    updateCollectionSettings.mutate({
-      collectionID,
-      collectionSettings: {
-        collectionType: options.collectionType,
-        gridRows: options.gridRows,
-        gridColumns: options.gridColumns,
-        checkboxArr: options.checkboxArr,
-        padding: options.padding,
-      },
-    });
+    if (!initialLoad.current)
+      updateCollectionSettings.mutate({
+        collectionID,
+        collectionSettings: {
+          collectionType: options.collectionType,
+          gridRows: options.gridRows,
+          gridColumns: options.gridColumns,
+          checkboxArr: options.checkboxArr,
+          padding: options.padding,
+        },
+      });
+    initialLoad.current = true;
+    return () => {
+      initialLoad.current = false;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     options.checkboxArr,

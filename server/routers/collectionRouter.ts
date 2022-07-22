@@ -1,10 +1,24 @@
 import { createRouter } from "../createRouter";
 import { z } from "zod";
 import { prisma } from "../prisma";
+import type { Context } from "../context";
+
+const validateUserCollection = async (ctx: Context, id: string) => {
+  if (!ctx.session || !ctx.session.user) return false;
+  const found = await prisma.collection.findFirst({
+    where: {
+      id: id,
+      userId: ctx.session.id as string,
+    },
+  });
+  if (!found) return false;
+  return true;
+};
 
 export const collectionRouter = createRouter()
   .mutation("createCollection", {
-    async resolve({ ctx }) {
+    input: z.string(),
+    async resolve({ input, ctx }) {
       try {
         if (!ctx.session)
           return {
@@ -13,7 +27,7 @@ export const collectionRouter = createRouter()
           };
         const collection = await prisma.collection.create({
           data: {
-            name: "test",
+            name: input,
             userId: ctx.session.id as string,
           },
         });
@@ -59,22 +73,8 @@ export const collectionRouter = createRouter()
       ),
     }),
     async resolve({ input, ctx }) {
-      if (!ctx.session || !ctx.session.user)
-        return {
-          message: "failed",
-          response: "NO AUTHORIZATION TOKEN PRESENT",
-        };
-      const found = await prisma.collection.findFirst({
-        where: {
-          id: input.collectionID,
-          userId: ctx.session.id as string,
-        },
-      });
-      if (!found)
-        return {
-          message: "failed",
-          response: "Cannot find collection",
-        };
+      if (!(await validateUserCollection(ctx, input.collectionID)))
+        return { message: "failed", response: "UNAUTHORIZED" };
       const updatedCollection = await prisma.collection.update({
         where: {
           id: input.collectionID,
@@ -98,22 +98,8 @@ export const collectionRouter = createRouter()
       collectionID: z.string(),
     }),
     async resolve({ input, ctx }) {
-      if (!ctx.session || !ctx.session.user)
-        return {
-          message: "failed",
-          response: "NO AUTHORIZATION TOKEN PRESENT",
-        };
-      const found = await prisma.collection.findFirst({
-        where: {
-          id: input.collectionID,
-          userId: ctx.session.id as string,
-        },
-      });
-      if (!found)
-        return {
-          message: "failed",
-          response: "Cannot find collection",
-        };
+      if (!(await validateUserCollection(ctx, input.collectionID)))
+        return { message: "failed", response: "UNAUTHORIZED" };
       const updatedCollection = await prisma.collection.update({
         where: {
           id: input.collectionID,
@@ -123,5 +109,34 @@ export const collectionRouter = createRouter()
         },
       });
       return { message: "success", response: updatedCollection };
+    },
+  })
+  .mutation("updateCollectionName", {
+    input: z.object({ newName: z.string(), collectionID: z.string() }),
+    async resolve({ ctx, input }) {
+      if (!(await validateUserCollection(ctx, input.collectionID)))
+        return { message: "failed", response: "UNAUTHORIZED" };
+      const updatedCollection = await prisma.collection.update({
+        where: {
+          id: input.collectionID,
+        },
+        data: {
+          name: input.newName,
+        },
+      });
+      return { message: "success", response: updatedCollection };
+    },
+  })
+  .mutation("deleteCollection", {
+    input: z.string(),
+    async resolve({ ctx, input }) {
+      if (!(await validateUserCollection(ctx, input)))
+        return { message: "failed", response: "UNAUTHORIZED" };
+      const deletedCollection = await prisma.collection.delete({
+        where: {
+          id: input,
+        },
+      });
+      return { message: "success", response: deletedCollection };
     },
   });

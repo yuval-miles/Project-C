@@ -19,13 +19,13 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { trpc } from "../../utils/trpc";
 import { GetServerSideProps } from "next";
 import { addedItemsObj } from "../../hooks/useSetGrid";
-
-let initialLoad = true;
+import { useEffect, useRef } from "react";
 
 const Home: NextPage<{ collectionID: string }> = ({ collectionID }) => {
+  const initialLoad = useRef(true);
   const router = useRouter();
   const dispatch = useDispatch();
-  const { data, isLoading, isSuccess } = trpc.useQuery(
+  const { data, isLoading, isSuccess, isFetching } = trpc.useQuery(
     ["Collections.getCollection", collectionID],
     {
       enabled: true,
@@ -38,8 +38,17 @@ const Home: NextPage<{ collectionID: string }> = ({ collectionID }) => {
       router.push("/login");
     },
   });
-
-  if (initialLoad && status === "authenticated" && isSuccess) {
+  useEffect(() => {
+    return () => {
+      initialLoad.current = true;
+    };
+  }, []);
+  if (
+    initialLoad.current &&
+    status === "authenticated" &&
+    isSuccess &&
+    !isFetching
+  ) {
     if (typeof data.response === "string") return <div>{data.response}</div>;
     const settings = data.response.collectionSetting as {
       collectionType: string;
@@ -48,23 +57,39 @@ const Home: NextPage<{ collectionID: string }> = ({ collectionID }) => {
       checkboxArr: string[];
       padding: number;
     };
+    console.log(settings);
+    console.log(Object.keys(settings).length);
     dispatch(updateCollectionId(collectionID));
     dispatch(updateAddedItems(data.response.addedItems as AddedItemsType));
-    dispatch(updateOptions(settings));
+    Object.keys(settings).length !== 0
+      ? dispatch(updateOptions(settings))
+      : dispatch(
+          updateOptions({
+            collectionType: "top40",
+            gridRows: 5,
+            gridColumns: 7,
+            itemPadding: 0,
+            checkboxArr: [],
+            padding: 5,
+            showOptions: false,
+          })
+        );
     Object.assign(addedItemsObj, data.response.addedItems as AddedItemsType);
     dispatch(
       createGrid(
-        createNewGrid(
-          settings.collectionType,
-          data.response.addedItems as AddedItemsType,
-          settings.gridRows,
-          settings.gridColumns
-        )
+        Object.keys(settings).length !== 0
+          ? createNewGrid(
+              settings.collectionType,
+              data.response.addedItems as AddedItemsType,
+              settings.gridRows,
+              settings.gridColumns
+            )
+          : createNewGrid("top40", data.response.addedItems as AddedItemsType)
       )
     );
-    initialLoad = false;
+    initialLoad.current = false;
   }
-  if (status === "loading" || isLoading)
+  if (status === "loading" || isLoading || isFetching)
     return (
       <Box
         width={"100vw"}

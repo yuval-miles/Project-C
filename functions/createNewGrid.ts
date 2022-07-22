@@ -26,6 +26,7 @@ export const createNewGrid = (
   rows?: number,
   columns?: number
 ): CollectionType => {
+  console.log(collectionType);
   const newGrid: CollectionType = [];
   let position: number = 0;
   let size: string = "";
