@@ -94,17 +94,9 @@ const LoginForm = () => {
         >
           Login with github
         </Button>
-        <Button onClick={() => signOut()}>logout</Button>
       </Stack>
     </Box>
   );
 };
-
-// export async function getServerSideProps(context: any) {
-//   const providers = await getProviders();
-//   return {
-//     props: { providers },
-//   };
-// }
 
 export default LoginForm;

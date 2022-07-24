@@ -20,6 +20,7 @@ import { trpc } from "../../utils/trpc";
 import { GetServerSideProps } from "next";
 import { addedItemsObj } from "../../hooks/useSetGrid";
 import { useEffect, useRef } from "react";
+import AppBarComp from "../../components/AppBarComp";
 
 const Home: NextPage<{ collectionID: string }> = ({ collectionID }) => {
   const initialLoad = useRef(true);
@@ -120,6 +121,10 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       collectionID: context.params.collectionID,
     },
   };
+};
+
+Home.getLayout = function getLayout(page: React.ReactNode) {
+  return <AppBarComp>{page}</AppBarComp>;
 };
 
 export default Home;

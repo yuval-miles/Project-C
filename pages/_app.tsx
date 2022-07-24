@@ -5,20 +5,26 @@ import { withTRPC } from "@trpc/next";
 import type { AppProps } from "next/app";
 import superjson from "superjson";
 import { AppRouter } from "../server/routers/_app";
-import { SSRContext } from "../utils/trpc";
 import { Provider } from "react-redux";
 import { store } from "../store/store";
 import { SessionProvider } from "next-auth/react";
+import { AppContext, AppInitialProps, AppLayoutProps } from "next/app";
+import type { NextComponentType } from "next";
+import { ReactNode } from "react";
 
-function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
+const MyApp: NextComponentType<AppContext, AppInitialProps, AppLayoutProps> = ({
+  Component,
+  pageProps: { session, ...pageProps },
+}: AppProps) => {
+  const getLayout = Component.getLayout || ((page: ReactNode) => page);
   return (
     <Provider store={store}>
       <SessionProvider session={session}>
-        <Component {...pageProps} />
+        {getLayout(<Component {...pageProps} />)}
       </SessionProvider>
     </Provider>
   );
-}
+};
 
 function getBaseUrl() {
   if (typeof window !== "undefined") {

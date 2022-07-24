@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -28,6 +28,7 @@ import {
 } from "../store/slices/userCollectionsSlice";
 import SendIcon from "@mui/icons-material/Send";
 import TransitionModal from "../components/Modal";
+import AppBarComp from "../components/AppBarComp";
 
 const UserProfile = () => {
   const [input, setInput] = useState("");
@@ -216,6 +217,10 @@ const UserProfile = () => {
         />
       </Box>
     );
+};
+
+UserProfile.getLayout = function getLayout(page: React.ReactNode) {
+  return <AppBarComp>{page}</AppBarComp>;
 };
 
 export default UserProfile;
