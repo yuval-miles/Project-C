@@ -58,8 +58,6 @@ const Home: NextPage<{ collectionID: string }> = ({ collectionID }) => {
       checkboxArr: string[];
       padding: number;
     };
-    console.log(settings);
-    console.log(Object.keys(settings).length);
     dispatch(updateCollectionId(collectionID));
     dispatch(updateAddedItems(data.response.addedItems as AddedItemsType));
     Object.keys(settings).length !== 0

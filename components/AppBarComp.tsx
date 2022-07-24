@@ -36,9 +36,16 @@ export default function AppBarComp({
                 <AccountCircle color="primary" />
                 <Typography color={"black"}>{session.user?.name}</Typography>
               </Stack>
-              <Button variant="contained" onClick={() => signOut()}>
-                Logout
-              </Button>
+              <Stack direction={"row"} gap={2}>
+                {/^\/collection/.test(router.asPath) && (
+                  <Button onClick={() => router.push("/")}>
+                    Back to collections
+                  </Button>
+                )}
+                <Button variant="contained" onClick={() => signOut()}>
+                  Logout
+                </Button>
+              </Stack>
             </Stack>
           </Toolbar>
         </AppBar>
